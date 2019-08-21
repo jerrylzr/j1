@@ -1,0 +1,63 @@
+[root@db-backup ~]# fdisk /dev/sda
+WARNING: DOS-compatible mode is deprecated. It's strongly recommended to
+         switch off the mode (command 'c') and change display units to
+         sectors (command 'u').
+
+Command (m for help): p
+
+Disk /dev/sda: 247.0 GB, 246960619520 bytes
+255 heads, 63 sectors/track, 30024 cylinders
+Units = cylinders of 16065 * 512 = 8225280 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x000d38f7
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sda1   *           1          26      204800   83  Linux
+Partition 1 does not end on cylinder boundary.
+/dev/sda2              26         548     4194304   82  Linux swap / Solaris
+Partition 2 does not end on cylinder boundary.
+/dev/sda3             548       26109   205315072   83  Linux
+
+Command (m for help): d
+Partition number (1-4): 3
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 3
+First cylinder (548-30024, default 548): 548
+Last cylinder, +cylinders or +size{K,M,G} (548-30024, default 30024): 30024
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+
+WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
+The kernel still uses the old table. The new table will be used at
+the next reboot or after you run partprobe(8) or kpartx(8)
+Syncing disks.
+[root@db-backup ~]# e2fsck -f /dev/sda3
+[root@db-backup ~]# resize2fs /dev/sda3
+[root@db-backup ~]# reboot
+[root@db-backup ~]# e2fsck -f /dev/sda3
+e2fsck 1.41.12 (17-May-2010)
+/dev/sda3 is mounted.
+e2fsck: Cannot continue, aborting.
+
+
+[root@db-backup ~]# resize2fs /dev/sda3
+resize2fs 1.41.12 (17-May-2010)
+Filesystem at /dev/sda3 is mounted on /; on-line resizing required
+old desc_blocks = 13, new_desc_blocks = 15
+Performing an on-line resize of /dev/sda3 to 59191913 (4k) blocks.
+The filesystem on /dev/sda3 is now 59191913 blocks long.
+
+[root@db-backup ~]# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda3       223G  183G   29G  87% /
+tmpfs           3.9G     0  3.9G   0% /dev/shm
+/dev/sda1       190M   47M  134M  26% /boot
